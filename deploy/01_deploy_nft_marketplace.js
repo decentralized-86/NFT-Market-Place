@@ -1,5 +1,8 @@
 const { network, deployments } = require("hardhat");
-const { developmentchains } = require("../helper-hardhat.config");
+const {
+  developmentchains,
+  VERIFICATION_BLOCK_CONFIRMATIONS,
+} = require("../helper-hardhat.config");
 
 module.exports = async function ({ getNamedAccounts, deployments }) {
   const { deployer } = await getNamedAccounts();
@@ -19,6 +22,15 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
     log: true,
     waitConfirmations: waitBlockConfirmations,
   });
+  log("Deployed..");
+  if (
+    !developmentchains.includes(network.name) &&
+    process.env.ETHERSCAN_API_KEY
+  ) {
+    log("Verifying...");
+    await verify(raffle.address, arguments);
+  }
+  log("verified......");
   log("------------------------");
 };
 module.exports.tags = ["all", "marketplace"];
